@@ -1,0 +1,62 @@
+﻿@page "/"
+@inject NavigationManager UriHelper
+
+<h1>Welcome to EducationX!</h1>
+<hr />
+
+@if (Students == null)
+{
+    <p>Loading... please wait</p>
+}
+else
+{
+    <h4>Students</h4>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Birth Date</th>
+                <th>Grades</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in Students)
+            {
+                <tr>
+                    <td>@student.FirstName</td>
+                    <td>@student.LastName</td>
+                    <td>@student.BirthDate.ToShortDateString()</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => NavigateToStudent(student)">
+                            <i class="oi oi-graph"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<StudentModel> Students { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (HttpClient httpClient = new HttpClient())
+        {
+            HttpResponseMessage response = await httpClient.GetAsync($"{AppConstants.BaseApiUrl}/students");
+            string json = await response.Content.ReadAsStringAsync();
+            var apiResponse = JsonConvert.DeserializeObject<ODataApiResponse<IEnumerable<StudentModel>>>(json);
+
+            Students = apiResponse.Value;
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private void NavigateToStudent(StudentModel student)
+    {
+        UriHelper.NavigateTo($"/grades/{student.Id}");
+    }
+}

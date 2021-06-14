@@ -1,0 +1,56 @@
+﻿@page "/grades/{studentId:int}"
+
+<h3>Grades</h3>
+
+@if (StudentGrades == null)
+{
+    <p>Loading, please wait...</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Course</th>
+                <th>Date Enrolled</th>
+                <th>Grade</th>
+                <th>Teacher</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var studentGrade in StudentGrades)
+            {
+                <tr>
+                    <td>@studentGrade.StudentEnrollment.Course.Name</td>
+                    <td>@studentGrade.StudentEnrollment.DateEnrolled</td>
+                    <td>@studentGrade.Grade</td>
+                    <td>
+                        @string.Join(Environment.NewLine, studentGrade.StudentEnrollment.Course.CourseTeachers.Select(ct => $"{ct.Teacher.FirstName} {ct.Teacher.LastName}"))
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int StudentId { get; set; }
+
+    private IEnumerable<StudentGradeModel> StudentGrades { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        using (HttpClient httpClient = new HttpClient())
+        {
+            HttpResponseMessage response = await httpClient.GetAsync($"{AppConstants.BaseApiUrl}/student-grades?$filter=StudentEnrollment/StudentId%20eq%20{StudentId}&$expand=StudentEnrollment($expand=Course($select=Name,CourseTeachers($select=Teacher/FirstName,Teacher/LastName,Teacher/AcademicRankId)))");
+
+            string json = await response.Content.ReadAsStringAsync();
+            var apiResponse = JsonConvert.DeserializeObject<ODataApiResponse<IEnumerable<StudentGradeModel>>>(json);
+
+            StudentGrades = apiResponse.Value;
+        }
+
+        await base.OnParametersSetAsync();
+    }
+}

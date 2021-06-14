@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.5.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EducationX.Application\EducationX.Application.csproj" />
+    <ProjectReference Include="..\EducationX.Domain\EducationX.Domain.csproj" />
+    <ProjectReference Include="..\EducationX.Infrastructure\EducationX.Infrastructure.csproj" />
+    <ProjectReference Include="..\EducationX.IoC\EducationX.IoC.csproj" />
+  </ItemGroup>
+
+</Project>
